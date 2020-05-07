@@ -1,4 +1,6 @@
+#include <exception>
 #include <iostream>
+#include <string>
 using namespace std;
 
 int gcd(int a, int b) {
@@ -21,6 +23,9 @@ public:
     }
 
     Rational(int numerator, int denominator) {
+        if (denominator == 0) {
+            throw invalid_argument("Invalid argument");
+        }
         num = numerator;
         denom = denominator;
         if (num == 0) {
@@ -72,6 +77,9 @@ Rational operator*(const Rational& lhs, const Rational& rhs) {
 }
 
 Rational operator/(const Rational& lhs, const Rational& rhs) {
+    if (rhs.Numerator() == 0) {
+        throw domain_error("Division by zero");
+    }
     return Rational(lhs.Numerator() * rhs.Denominator(), lhs.Denominator() * rhs.Numerator());
 }
 
@@ -79,6 +87,9 @@ istream& operator>>(istream& stream, Rational& rhs) {
     int num, denom;
     bool full_read = true;
     full_read &= bool(stream >> num);
+    if (stream.peek() != '/') {
+        throw invalid_argument("Invalid argument");
+    }
     stream.ignore(1);
     full_read &= bool(stream >> denom);
     if (full_read) {
@@ -105,4 +116,28 @@ bool operator>(const Rational& lhs, const Rational& rhs) {
     return rhs < lhs;
 }
 
-int main() {}
+
+int main() {
+    Rational lhs, rhs, res;
+    char operation;
+    try {
+        cin >> lhs >> operation >> rhs;
+        switch(operation) {
+            case '+':
+                res = lhs + rhs;
+                break;
+            case '-':
+                res = lhs - rhs;
+                break;
+            case '*':
+                res = lhs * rhs;
+                break;
+            default:
+                res = lhs / rhs;
+                break;
+        }
+        std::cout << res << '\n';
+    } catch (const exception& ex) {
+        std::cout << ex.what() << '\n';
+    }
+}
